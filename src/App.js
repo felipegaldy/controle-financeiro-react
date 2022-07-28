@@ -34,7 +34,7 @@ const App = () => {
   return (
     <>
       <Header />
-      <Resume inCome={totalIncome} expense={totalExpense} total={total} />
+      <Resume />
       <Form />
       <Global />
     </>
