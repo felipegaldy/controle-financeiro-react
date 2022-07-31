@@ -1,42 +1,55 @@
-import React, { useState, useEffect }  from "react";
-import Form from "./components/Form";
-
+import React, { useEffect, useState } from "react";
+import GlobalStyle from "./styles/global";
 import Header from "./components/Header";
 import Resume from "./components/Resume";
-import Global from './styles/global';
+import Form from "./components/Form";
 
 const App = () => {
   const data = localStorage.getItem("transactions");
-  const [transactions, setTransactions] = useState(data ? JSON.parse(data) : []);
+  const [transactionsList, setTransactionsList] = useState(
+    data ? JSON.parse(data) : []
+  );
+  const [income, setIncome] = useState(0);
+  const [expense, setExpense] = useState(0);
   const [total, setTotal] = useState(0);
-  const [inCome, setInCome] = useState(0);
-  const [saida, setSaida] = useState(0);
 
   useEffect(() => {
-    const amountExpense = transactions.filter((item) => item.expense).map((transaction) => Number(transaction.amount));
+    const amountExpense = transactionsList
+      .filter((item) => item.expense)
+      .map((transaction) => Number(transaction.amount));
 
-    const amountIncome = transactions.filter((item) => !item.expense).map((transaction) => Number(transaction.amount));
+    const amountIncome = transactionsList
+      .filter((item) => !item.expense)
+      .map((transaction) => Number(transaction.amount));
 
-    const totalExpense = amountExpense.reduce((acc, curr) => acc + curr, 0).toFixed(2);
-    const totalIncome = amountIncome.reduce((acc, curr) => acc + curr, 0).toFixed(2);
+    const expense = amountExpense.reduce((acc, cur) => acc + cur, 0).toFixed(2);
+    const income = amountIncome.reduce((acc, cur) => acc + cur, 0).toFixed(2);
 
-    const total = Math.abs(totalExpense - totalIncome).toFixed(2);
+    const total = Math.abs(income - expense).toFixed(2);
 
-    setInCome('R$ ' + totalIncome);
-    setSaida('R$ ' + totalExpense);
-    setTotal(`${Number(totalIncome) < Number(totalExpense) ? '-' : ''}R$ ${total}`);
+    setIncome(`R$ ${income}`);
+    setExpense(`R$ ${expense}`);
+    setTotal(`${Number(income) < Number(expense) ? "-" : ""}R$ ${total}`);
+  }, [transactionsList]);
 
-  }, [transactions]);
+  const handleAdd = (transaction) => {
+    const newArrayTransactions = [...transactionsList, transaction];
 
-  
+    setTransactionsList(newArrayTransactions);
 
+    localStorage.setItem("transactions", JSON.stringify(newArrayTransactions));
+  };
 
   return (
     <>
       <Header />
-      <Resume />
-      <Form />
-      <Global />
+      <Resume income={income} expense={expense} total={total} />
+      <Form
+        handleAdd={handleAdd}
+        transactionsList={transactionsList}
+        setTransactionsList={setTransactionsList}
+      />
+      <GlobalStyle />
     </>
   );
 };
